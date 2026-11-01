@@ -5,19 +5,34 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "tsc -b && tsc -p tsconfig.worker.json && vite build",
+    "preview": "vite preview",
+    "dev:worker": "wrangler dev --local",
+    "setup:local": "node scripts/setup-local.mjs && wrangler d1 migrations apply setter-db --local",
+    "db:migrate:local": "wrangler d1 migrations apply setter-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply setter-db --remote",
+    "admin:create": "node scripts/create-admin.mjs",
+    "types:worker": "wrangler types --strict-vars=false",
+    "typecheck:worker": "tsc -p tsconfig.worker.json",
+    "deploy:check": "npm run build && wrangler deploy --dry-run",
+    "deploy": "npm run build && wrangler deploy",
+    "test": "node --test --test-concurrency=1 tests/auth.integration.test.mjs"
   },
   "dependencies": {
+    "better-auth": "^1.7.15",
+    "hono": "^4.13.16",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "~5.7.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "wrangler": "^4.156.0"
   }
 }

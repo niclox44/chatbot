@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
-  BarChart3,
   BookOpen,
   Bot,
   CalendarCheck,
@@ -9,23 +8,21 @@ import {
   CheckCircle2,
   ChevronDown,
   CircleHelp,
-  Clock3,
   ExternalLink,
   FileText,
   Gauge,
   Instagram,
   LayoutDashboard,
+  LogOut,
   Link2,
   Menu,
   MessageCircle,
   MessageSquareText,
   MoreHorizontal,
   Pause,
-  Play,
   Plus,
   Search,
   Send,
-  Settings2,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
@@ -35,8 +32,10 @@ import {
   Zap,
 } from 'lucide-react'
 import './App.css'
+import './styles/client.css'
+import { useAuth } from './hooks/useAuth'
+import ClientHome from './pages/client/ClientHome'
 
-type Page = 'landing' | 'app'
 type Section =
   | 'inicio'
   | 'conversaciones'
@@ -186,7 +185,7 @@ function FlowIllustration({ type }: { type: 'respond' | 'qualify' | 'control' })
   )
 }
 
-function Landing({ openApp }: { openApp: () => void }) {
+export function Landing({ openApp, openLogin, authenticated }: { openApp: () => void; openLogin: () => void; authenticated: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeSolution, setActiveSolution] = useState(1)
@@ -289,7 +288,7 @@ function Landing({ openApp }: { openApp: () => void }) {
             <a href="#producto" onClick={() => setMenuOpen(false)}>Producto</a>
             <a href="#control" onClick={() => setMenuOpen(false)}>Control</a>
           </nav>
-          <button className="nav-login" onClick={openApp}>Ver demo <ArrowRight size={16} /></button>
+          <button className="nav-login" onClick={openLogin}>{authenticated ? 'Mi panel' : 'Iniciar sesión'} <ArrowRight size={16} /></button>
           <button className="nav-menu" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">{menuOpen ? <X /> : <Menu />}</button>
         </header>
 
@@ -303,7 +302,7 @@ function Landing({ openApp }: { openApp: () => void }) {
             </h1>
             <p>Tu asistente conversa, cualifica y prepara el siguiente paso. Tú decides cómo responde y cuándo tomar el control.</p>
             <div className="hero-actions">
-              <PillButton variant="primary" onClick={openApp}>Ver el panel</PillButton>
+              <PillButton variant="primary" onClick={openApp}>{authenticated ? 'Ir a mi panel' : 'Crear cuenta'}</PillButton>
               <a className="text-link" href="#como">Descubrir cómo funciona <ArrowRight size={16} /></a>
             </div>
             <div className="hero-proof">
@@ -415,11 +414,11 @@ function Landing({ openApp }: { openApp: () => void }) {
 
         <section className="final-cta section">
           <div className="final-grid" />
-          <div className="page-shell final-cta__inner"><div><span className="section-kicker section-kicker--light">Primera versión</span><h2>Empieza por una conversación.<br /><span>Mejora a partir de ahí.</span></h2></div><div><p>Explora el prototipo del panel y descubre cómo se sentiría supervisar tu setter de IA.</p><PillButton variant="primary" onClick={openApp}>Abrir la demo</PillButton></div></div>
+          <div className="page-shell final-cta__inner"><div><span className="section-kicker section-kicker--light">Primera versión</span><h2>Empieza por una conversación.<br /><span>Mejora a partir de ahí.</span></h2></div><div><p>Crea tu cuenta y accede a tu espacio para supervisar tu setter de IA.</p><PillButton variant="primary" onClick={openApp}>{authenticated ? 'Ir a mi panel' : 'Crear cuenta'}</PillButton></div></div>
         </section>
       </main>
 
-      <footer className="footer"><div className="page-shell footer-grid"><div><Brand /><p>Convierte conversaciones de Instagram en oportunidades reales.</p></div><div><strong>Producto</strong><a href="#como">Cómo funciona</a><a href="#producto">Funciones</a><button onClick={openApp}>Ver demo</button></div><div><strong>Recursos</strong><a href="#control">Control y seguridad</a><a href="#inicio">Preguntas frecuentes</a></div><div><strong>Estado</strong><span className="footer-status"><i /> Prototipo frontend</span></div></div><div className="page-shell footer-bottom"><span>© 2026 Setter. Diseño de producto en desarrollo.</span><span>Privacidad · Aviso legal</span></div></footer>
+      <footer className="footer"><div className="page-shell footer-grid"><div><Brand /><p>Convierte conversaciones de Instagram en oportunidades reales.</p></div><div><strong>Producto</strong><a href="#como">Cómo funciona</a><a href="#producto">Funciones</a><button onClick={openLogin}>Iniciar sesión</button></div><div><strong>Recursos</strong><a href="#control">Control y seguridad</a><a href="#inicio">Preguntas frecuentes</a></div><div><strong>Estado</strong><span className="footer-status"><i /> Prototipo frontend</span></div></div><div className="page-shell footer-bottom"><span>© 2026 Setter. Diseño de producto en desarrollo.</span><span>Privacidad · Aviso legal</span></div></footer>
     </div>
   )
 }
@@ -429,15 +428,8 @@ function StatusPill({ children, tone = 'default' }: { children: React.ReactNode;
 }
 
 function AppHeader({ title, subtitle, goHome }: { title: string; subtitle?: string; goHome: () => void }) {
-  return <header className="app-topbar"><div><div className="mobile-brand" onClick={goHome}><Brand /></div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div><div className="app-topbar__actions"><button className="icon-button" aria-label="Ayuda"><CircleHelp size={19} /></button><button className="avatar-button">AN</button></div></header>
-}
-
-function HomeSection({ setSection }: { setSection: (section: Section) => void }) {
-  return <><AppHeader title="Buenos días, Álex" subtitle="Esto es lo que está pasando en tus conversaciones." goHome={() => setSection('inicio')} /><div className="app-page-content">
-    <div className="assistant-status-card"><div className="assistant-status-card__icon"><Sparkles /></div><div><span>Tu asistente está activo</span><h2>Nora está atendiendo tus conversaciones.</h2><p>Modo copiloto · Revisión necesaria antes de enviar</p></div><button onClick={() => setSection('asistente')}>Configurar <ArrowRight size={16} /></button><div className="pulse-orbit"><i /><i /></div></div>
-    <div className="app-metrics"><article><span className="metric-icon mint"><MessageCircle /></span><div><small>Conversaciones activas</small><strong>28</strong><span><b>+6</b> esta semana</span></div></article><article><span className="metric-icon peach"><Target /></span><div><small>Contactos cualificados</small><strong>11</strong><span><b>39%</b> del total</span></div></article><article><span className="metric-icon blue"><CalendarCheck /></span><div><small>Reservas generadas</small><strong>5</strong><span><b>+2</b> esta semana</span></div></article></div>
-    <div className="home-grid"><section className="app-card recent-card"><div className="app-card__header"><div><h3>Conversaciones recientes</h3><p>Revisa los chats que necesitan tu atención.</p></div><button onClick={() => setSection('conversaciones')}>Ver todas <ArrowRight size={15} /></button></div><div className="recent-list">{conversations.slice(0, 3).map(c => <button key={c.id} onClick={() => setSection('conversaciones')}><span className="avatar">{c.avatar}</span><span><strong>{c.name}</strong><small>{c.preview}</small></span><StatusPill tone={c.stage === 'Cita propuesta' ? 'green' : c.stage === 'Nuevo' ? 'blue' : 'amber'}>{c.stage}</StatusPill><time>{c.time}</time></button>)}</div></section><aside className="app-card attention-card"><div className="app-card__header"><div><h3>Necesitan atención</h3><p>2 conversaciones</p></div><span className="attention-count">2</span></div><div className="attention-item"><span className="avatar avatar--coral">LM</span><div><strong>Lucía Martín</strong><p>Ha preguntado por una condición no configurada.</p><button onClick={() => setSection('conversaciones')}>Revisar conversación</button></div></div><div className="attention-tip"><Sparkles size={17} /><p><strong>Consejo</strong>Añade esta respuesta a la información de tu negocio para la próxima vez.</p></div></aside></div>
-  </div></>
+  const { user } = useAuth()
+  return <header className="app-topbar"><div><div className="mobile-brand" onClick={goHome}><Brand /></div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div><div className="app-topbar__actions"><button className="icon-button" aria-label="Ayuda"><CircleHelp size={19} /></button><span className="avatar-button" title={user?.name}>{user?.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase()}</span></div></header>
 }
 
 function ConversationsSection() {
@@ -476,24 +468,28 @@ function IntegrationsSection() {
   return <><AppHeader title="Integraciones" subtitle="Conecta los canales que utiliza tu negocio." goHome={() => undefined} /><div className="app-page-content"><div className="integration-grid"><article className="app-card integration-card integration-card--connected"><div className="integration-logo instagram-logo"><Instagram /></div><div><span className="connected-label"><i /> Conectado</span><h3>Instagram</h3><p>Recibe y responde mensajes desde tu cuenta profesional.</p></div><button>Gestionar <ArrowRight size={15} /></button></article><article className="app-card integration-card"><div className="integration-logo calendar-logo"><CalendarCheck /></div><div><span className="soon-label">Recomendado</span><h3>Calendario</h3><p>Comparte disponibilidad y registra reservas conseguidas.</p></div><button>Conectar <Plus size={15} /></button></article><article className="app-card integration-card"><div className="integration-logo webhook-logo"><Zap /></div><div><span className="soon-label">Avanzado</span><h3>Webhooks</h3><p>Envía eventos a tus herramientas y automatizaciones.</p></div><button>Configurar <ArrowRight size={15} /></button></article></div><section className="app-card connection-log"><div className="app-card__header"><div><h3>Estado de las conexiones</h3><p>Últimas comprobaciones realizadas.</p></div><button>Comprobar ahora</button></div><div><span className="metric-icon mint"><Instagram /></span><span><strong>Instagram</strong><small>Conexión verificada correctamente</small></span><StatusPill tone="green">Operativo</StatusPill><time>Hace 4 min</time></div></section></div></>
 }
 
-function AppDashboard({ goLanding }: { goLanding: () => void }) {
+export function AppDashboard({ goLanding }: { goLanding: () => void }) {
+  const { user, profile, signOut } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
+  const [signOutError, setSignOutError] = useState('')
+  const initials = user?.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase()
+  const companyInitials = (profile?.company_name || 'Mi negocio').trim().slice(0, 2).toUpperCase()
+  const logout = async () => {
+    setSigningOut(true)
+    setSignOutError('')
+    try { await signOut() } catch (cause) { setSignOutError(cause instanceof Error ? cause.message : 'No se ha podido cerrar la sesión.') }
+    finally { setSigningOut(false) }
+  }
   const [section, setSection] = useState<Section>('inicio')
   const [mobileMore, setMobileMore] = useState(false)
   const activeLabel = useMemo(() => navItems.find(item => item.id === section)?.label, [section])
-  return <div className="app-shell"><aside className="app-sidebar"><div className="app-sidebar__brand"><Brand light /><button className="collapse-button"><ChevronDown size={17} /></button></div><div className="workspace-select"><span>EN</span><div><small>Espacio de trabajo</small><strong>Estudio Norte</strong></div><ChevronDown size={16} /></div><nav aria-label="Panel principal">{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => setSection(item.id)} title={item.label}><Icon size={19} /><span>{item.label}</span>{item.id === 'conversaciones' && <b>2</b>}</button> })}</nav><div className="app-sidebar__bottom"><button><Settings2 size={19} /><span>Configuración</span></button><button onClick={goLanding}><ExternalLink size={19} /><span>Ver web pública</span></button><div className="sidebar-profile"><span>AN</span><div><strong>Álex Navarro</strong><small>Administrador</small></div><MoreHorizontal size={18} /></div></div></aside><main className="app-main" aria-label={activeLabel}><div className="app-view" key={section}>
-    {section === 'inicio' && <HomeSection setSection={setSection} />}
+  return <div className="app-shell"><aside className="app-sidebar"><div className="app-sidebar__brand"><Brand light /><button className="collapse-button"><ChevronDown size={17} /></button></div><div className="workspace-select"><span>{companyInitials}</span><div><small>Espacio de trabajo</small><strong>{profile?.company_name || 'Mi negocio'}</strong></div><ChevronDown size={16} /></div><nav aria-label="Panel principal">{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => setSection(item.id)} title={item.label}><Icon size={19} /><span>{item.label}</span></button> })}</nav><div className="app-sidebar__bottom"><button onClick={() => void logout()} disabled={signingOut} title="Cerrar sesión"><LogOut size={19} /><span>{signingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}</span></button><button onClick={goLanding}><ExternalLink size={19} /><span>Ver web pública</span></button><div className="sidebar-profile"><span>{initials}</span><div><strong>{user?.name}</strong><small>Cliente</small></div></div></div></aside><main className="app-main" aria-label={activeLabel}>{signOutError && <div className="client-error" role="alert">{signOutError}</div>}{section !== 'inicio' && <div className="client-demo-notice"><CircleHelp size={16} /><span>Vista previa del producto. Los datos y configuraciones de esta sección son ejemplos.</span></div>}<div className="app-view" key={section}>
+    {section === 'inicio' && <ClientHome />}
     {section === 'conversaciones' && <ConversationsSection />}
     {section === 'contactos' && <ContactsSection />}
     {section === 'asistente' && <AssistantSection />}
     {section === 'negocio' && <BusinessSection />}
     {section === 'probar' && <SimulatorSection />}
     {section === 'integraciones' && <IntegrationsSection />}
-  </div></main>{mobileMore && <div className="mobile-more-menu"><button className="mobile-more-backdrop" aria-label="Cerrar menú" onClick={() => setMobileMore(false)} /><div className="mobile-more-sheet"><div><strong>Más opciones</strong><button onClick={() => setMobileMore(false)}><X size={18} /></button></div>{navItems.slice(4).map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => { setSection(item.id); setMobileMore(false) }}><Icon size={19} /><span>{item.label}</span><ArrowRight size={15} /></button> })}<button onClick={goLanding}><ExternalLink size={19} /><span>Ver web pública</span><ArrowRight size={15} /></button></div></div>}<nav className="mobile-app-nav">{navItems.slice(0, 4).map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => { setSection(item.id); setMobileMore(false) }}><Icon size={20} /><span>{item.label}</span></button> })}<button className={navItems.slice(4).some(item => item.id === section) ? 'active' : ''} onClick={() => setMobileMore(true)}><MoreHorizontal size={20} /><span>Más</span></button></nav></div>
-}
-
-export default function App() {
-  const [page, setPage] = useState<Page>('landing')
-  const openApp = () => { setPage('app'); window.scrollTo(0, 0) }
-  const goLanding = () => { setPage('landing'); window.scrollTo(0, 0) }
-  return page === 'landing' ? <Landing openApp={openApp} /> : <AppDashboard goLanding={goLanding} />
+  </div></main>{mobileMore && <div className="mobile-more-menu"><button className="mobile-more-backdrop" aria-label="Cerrar menú" onClick={() => setMobileMore(false)} /><div className="mobile-more-sheet"><div><strong>Más opciones</strong><button onClick={() => setMobileMore(false)}><X size={18} /></button></div>{navItems.slice(4).map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => { setSection(item.id); setMobileMore(false) }}><Icon size={19} /><span>{item.label}</span><ArrowRight size={15} /></button> })}<button onClick={goLanding}><ExternalLink size={19} /><span>Ver web pública</span><ArrowRight size={15} /></button><button className="client-logout-mobile" disabled={signingOut} onClick={() => void logout()}><LogOut size={19} /><span>{signingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}</span></button></div></div>}<nav className="mobile-app-nav">{navItems.slice(0, 4).map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => { setSection(item.id); setMobileMore(false) }}><Icon size={20} /><span>{item.label}</span></button> })}<button className={navItems.slice(4).some(item => item.id === section) ? 'active' : ''} onClick={() => setMobileMore(true)}><MoreHorizontal size={20} /><span>Más</span></button></nav></div>
 }

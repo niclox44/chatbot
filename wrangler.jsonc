@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "chatbot",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/agents/*"]
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "BETTER_AUTH_URL": "https://chatbot.nicoberry008.workers.dev",
+    "TRUSTED_ORIGINS": ""
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "setter-db",
+    "database_id": "d3a11e63-bfc6-4af6-98db-e90282aa0ea3",
+    "migrations_dir": "migrations"
+  }],
+  "durable_objects": {
+    "bindings": [{ "name": "SETTER_AGENTS", "class_name": "SetterAgent" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SetterAgent"] }],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "dev": { "port": 8787 }
+}
